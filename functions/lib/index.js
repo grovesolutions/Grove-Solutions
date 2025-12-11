@@ -279,7 +279,7 @@ exports.chatWithSapling = (0, https_1.onCall)({
         // Initialize Gemini with function calling
         const genAI = new generative_ai_1.GoogleGenerativeAI(geminiApiKey.value());
         const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash",
+            model: "gemini-flash-latest",
             systemInstruction: SYSTEM_INSTRUCTION,
             tools: [{ functionDeclarations }],
             safetySettings: [

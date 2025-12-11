@@ -302,7 +302,7 @@ export const chatWithSapling = onCall(
       // Initialize Gemini with function calling
       const genAI = new GoogleGenerativeAI(geminiApiKey.value());
       const model = genAI.getGenerativeModel({
-        model: "gemini-1.5-flash",
+        model: "gemini-flash-latest",
         systemInstruction: SYSTEM_INSTRUCTION,
         tools: [{ functionDeclarations }],
         safetySettings: [
