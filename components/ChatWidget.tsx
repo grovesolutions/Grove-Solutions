@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import LineIcon from './LineIcon';
+import ChatMarkdown from './ChatMarkdown';
 import { sendMessageToGemini, SaplingResponse, submitContactRequest } from '../backend';
 import { Message } from '../types';
 
@@ -62,7 +63,7 @@ const ChatWidget: React.FC = () => {
 
   const chatWindowClasses = isFullscreen
     ? "w-full h-full sm:h-[calc(100vh-2rem)] sm:w-[min(960px,calc(100vw-2rem))] md:w-[min(1100px,calc(100vw-3rem))] md:h-[calc(100vh-3rem)] bg-[var(--bg-primary)] rounded-3xl shadow-2xl overflow-hidden flex flex-col transition-all duration-300 ease-out animate-in slide-in-from-bottom-4"
-    : "mb-3 w-[calc(100vw-2rem)] sm:w-80 md:w-[22rem] bg-[var(--bg-primary)] rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[70vh] sm:h-[480px] max-h-[520px] transition-all duration-300 ease-out animate-in slide-in-from-bottom-4";
+    : "mb-3 w-[calc(100vw-2rem)] sm:w-80 md:w-[24rem] bg-[var(--bg-primary)] rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[70vh] sm:h-[480px] md:h-[520px] max-h-[580px] transition-all duration-300 ease-out animate-in slide-in-from-bottom-4";
 
   const handleActionClick = (action: ActionCard) => {
     setShowRequestForm(action);
@@ -187,10 +188,9 @@ const ChatWidget: React.FC = () => {
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
                 <LineIcon name="comment-1" className="text-base text-white" />
-            </div>
+              </div>
               <div>
                 <h3 className="font-semibold text-white text-sm">Sapling AI</h3>
-                <span className="text-[10px] text-white/70">Always here to help</span>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -227,7 +227,7 @@ const ChatWidget: React.FC = () => {
                         : 'bg-[var(--bg-card)] text-[var(--text-primary)] rounded-[20px] rounded-bl-md shadow-sm'
                   }`}
                 >
-                  {msg.text}
+                  <ChatMarkdown text={msg.text} isUser={msg.role === 'user'} />
                 </div>
                 </div>
                 

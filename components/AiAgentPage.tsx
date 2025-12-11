@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import LineIcon from './LineIcon';
 import FadeIn from './FadeIn';
+import ChatMarkdown from './ChatMarkdown';
 import { sendMessageToGemini, SaplingResponse, submitContactRequest } from '../backend';
 import { Message } from '../types';
 
@@ -293,7 +294,7 @@ const AiAgentPage: React.FC<AiAgentPageProps> = ({ onBack, onContact, onWebDev, 
                                       : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 rounded-[20px] rounded-bl-md shadow-sm'
                                 }`}
                               >
-                                {msg.text}
+                                <ChatMarkdown text={msg.text} isUser={msg.role === 'user'} />
                                 </div>
                               </div>
                               
