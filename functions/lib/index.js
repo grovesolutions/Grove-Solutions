@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.chatWithSapling = void 0;
+exports.chatWithSapling = exports.submitContactRequest = void 0;
 const https_1 = require("firebase-functions/v2/https");
 const generative_ai_1 = require("@google/generative-ai");
 const params_1 = require("firebase-functions/params");
@@ -91,6 +91,25 @@ async function sendEmailViaEmailJS(userName, userEmail, requestType, message, pu
         return { success: false, error: error.message };
     }
 }
+exports.submitContactRequest = (0, https_1.onCall)({
+    secrets: [emailjsPublicKey],
+    cors: true,
+    maxInstances: 20,
+}, async (request) => {
+    const { name, email, message, requestType } = request.data;
+    if (!name || !email) {
+        throw new https_1.HttpsError("invalid-argument", "Name and email are required");
+    }
+    const sanitizedName = name.trim().slice(0, 120);
+    const sanitizedEmail = email.trim().slice(0, 200);
+    const sanitizedMessage = (message || "").trim().slice(0, 2000);
+    const safeRequestType = (requestType || "contact").toLowerCase();
+    const emailResult = await sendEmailViaEmailJS(sanitizedName, sanitizedEmail, safeRequestType, sanitizedMessage, emailjsPublicKey.value());
+    if (!emailResult.success) {
+        throw new https_1.HttpsError("internal", emailResult.error || "Failed to send contact request");
+    }
+    return { success: true };
+});
 // System instruction - kept secure on server side only
 const SYSTEM_INSTRUCTION = `You are "Sapling", the AI Sales Associate for Grove Solutions.
 

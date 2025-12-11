@@ -1,12 +1,7 @@
 import React, { useState } from 'react';
-import emailjs from '@emailjs/browser';
 import LineIcon from './LineIcon';
 import FadeIn from './FadeIn';
-
-// EmailJS Configuration
-const EMAILJS_SERVICE_ID = 'service_xi90wwp';
-const EMAILJS_TEMPLATE_ID = 'template_grove_contact';
-const EMAILJS_PUBLIC_KEY = 'l-yretOi4zMOb4niy';
+import { submitContactRequest } from '../backend';
 
 const Contact: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,21 +18,13 @@ const Contact: React.FC = () => {
     const email = formData.get('email') as string;
     const message = formData.get('message') as string;
 
-    const templateParams = {
-      to_email: 'grovesolutions.contact@gmail.com',
-      from_name: name,
-      from_email: email,
-      reply_to: email,
-      message: message,
-    };
-
     try {
-      await emailjs.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_ID,
-        templateParams,
-        EMAILJS_PUBLIC_KEY
-      );
+      await submitContactRequest({
+        name: name.trim(),
+        email: email.trim(),
+        message: message.trim(),
+        requestType: 'contact',
+      });
 
       setSubmitStatus('success');
       form.reset();

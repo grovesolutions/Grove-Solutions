@@ -12,4 +12,6 @@ export {
   initializeChat
 } from './geminiService';
 
+export { submitContactRequest } from './contactService';
+
 export type { SaplingResponse } from './geminiService';

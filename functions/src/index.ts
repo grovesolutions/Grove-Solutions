@@ -98,6 +98,47 @@ async function sendEmailViaEmailJS(
   }
 }
 
+interface ContactRequestPayload {
+  name?: string;
+  email?: string;
+  message?: string;
+  requestType?: string;
+}
+
+export const submitContactRequest = onCall(
+  {
+    secrets: [emailjsPublicKey],
+    cors: true,
+    maxInstances: 20,
+  },
+  async (request) => {
+    const { name, email, message, requestType } = request.data as ContactRequestPayload;
+
+    if (!name || !email) {
+      throw new HttpsError("invalid-argument", "Name and email are required");
+    }
+
+    const sanitizedName = name.trim().slice(0, 120);
+    const sanitizedEmail = email.trim().slice(0, 200);
+    const sanitizedMessage = (message || "").trim().slice(0, 2000);
+    const safeRequestType = (requestType || "contact").toLowerCase();
+
+    const emailResult = await sendEmailViaEmailJS(
+      sanitizedName,
+      sanitizedEmail,
+      safeRequestType,
+      sanitizedMessage,
+      emailjsPublicKey.value()
+    );
+
+    if (!emailResult.success) {
+      throw new HttpsError("internal", emailResult.error || "Failed to send contact request");
+    }
+
+    return { success: true };
+  }
+);
+
 // System instruction - kept secure on server side only
 const SYSTEM_INSTRUCTION = `You are "Sapling", the AI Sales Associate for Grove Solutions.
 

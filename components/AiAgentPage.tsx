@@ -1,14 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import emailjs from '@emailjs/browser';
 import LineIcon from './LineIcon';
 import FadeIn from './FadeIn';
-import { sendMessageToGemini, SaplingResponse } from '../backend';
+import { sendMessageToGemini, SaplingResponse, submitContactRequest } from '../backend';
 import { Message } from '../types';
-
-// EmailJS Configuration
-const EMAILJS_SERVICE_ID = 'service_xi90wwp';
-const EMAILJS_TEMPLATE_ID = 'template_grove_contact';
-const EMAILJS_PUBLIC_KEY = 'l-yretOi4zMOb4niy';
 
 interface ActionCard {
   type: 'contact' | 'quote' | 'demo' | 'email';
@@ -76,39 +70,32 @@ const AiAgentPage: React.FC<AiAgentPageProps> = ({ onBack, onContact, onWebDev, 
     
     setIsSubmittingForm(true);
     
-    const templateParams = {
-      to_email: 'grovesolutions.contact@gmail.com',
-      from_name: requestForm.name,
-      from_email: requestForm.email,
-      reply_to: requestForm.email,
-      message: `[${showRequestForm?.title}] ${requestForm.message || 'No additional message provided.'}`,
-    };
-
     try {
-      await emailjs.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_ID,
-        templateParams,
-        EMAILJS_PUBLIC_KEY
-      );
+      await submitContactRequest({
+        name: requestForm.name.trim(),
+        email: requestForm.email.trim(),
+        requestType: showRequestForm?.type || 'contact',
+        message: `[${showRequestForm?.title || 'Contact'}] ${requestForm.message || 'No additional message provided.'}`.trim(),
+      });
     
     setFormSubmitted(true);
     
     setTimeout(() => {
       setMessages(prev => [...prev, {
         role: 'model',
-        text: `Thanks ${requestForm.name}! 🎉 We've received your ${showRequestForm?.title.toLowerCase()} request. We'll get back to you at ${requestForm.email} within 24 hours.`
+          text: `Thanks ${requestForm.name}! 🎉 We've received your ${showRequestForm?.title?.toLowerCase() || 'contact'} request. We'll get back to you at ${requestForm.email} within 24 hours.`
       }]);
       setShowRequestForm(null);
-        setIsSubmittingForm(false);
+        setRequestForm({ name: '', email: '', message: '' });
     }, 1500);
     } catch (error) {
-      console.error("EmailJS error:", error);
+      console.error("Contact request error:", error);
       setMessages(prev => [...prev, {
         role: 'model',
         text: "Sorry, there was an issue sending your request. Please try again or contact us directly at grovesolutions.contact@gmail.com"
       }]);
       setShowRequestForm(null);
+    } finally {
       setIsSubmittingForm(false);
     }
   };
