@@ -65,9 +65,9 @@ const Hero: React.FC<HeroProps> = ({ onContact }) => {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 mt-14 md:mt-18 lg:mt-20 max-w-3xl mx-auto">
           {features.map((item, idx) => (
             <FadeIn key={idx} delay={450 + (idx * 100)} className="h-full">
-              <div className="p-4 md:p-5 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200/80 dark:border-neutral-700 shadow-sm hover:shadow-md dark:shadow-none transition-all group h-full hover:border-neutral-300 dark:hover:border-neutral-600">
-                <div className="w-9 h-9 md:w-10 md:h-10 rounded-lg bg-brand-100 dark:bg-brand-500/15 flex items-center justify-center mb-3">
-                  <LineIcon name={item.icon} className="text-lg md:text-xl text-brand-600 dark:text-brand-400" />
+              <div className="p-4 md:p-5 rounded-xl bg-white dark:bg-neutral-800 border border-brand-200/50 dark:border-brand-500/25 shadow-sm hover:shadow-md dark:shadow-none transition-all group h-full hover:border-brand-300 dark:hover:border-brand-500/40">
+                <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-brand-100 dark:bg-brand-900/80 flex items-center justify-center mb-3">
+                  <LineIcon name={item.icon} className="text-lg md:text-xl !text-brand-600 dark:!text-brand-400" />
                 </div>
                 <h3 className="text-neutral-900 dark:text-neutral-100 font-medium text-sm mb-0.5">{item.label}</h3>
                 <p className="text-neutral-500 dark:text-neutral-400 text-xs">{item.desc}</p>

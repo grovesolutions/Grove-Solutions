@@ -1,6 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "./tailwind.config.js";
 
 /* ============================================
    GROVE SOLUTIONS - GLOBAL CSS
@@ -398,6 +397,20 @@ h1, h2, h3, h4, h5, h6 {
 *:focus-visible {
   outline: 2px solid var(--brand-500);
   outline-offset: 2px;
+}
+
+/* Chat input - no focus outline */
+.chat-input-clean,
+.chat-input-clean:focus,
+.chat-input-clean:focus-visible,
+.chat-input-clean:focus-within {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.chat-input-clean:focus,
+.chat-input-clean:focus-visible {
+  border-color: var(--border-primary) !important;
 }
 
 /* ========== ANIMATIONS ========== */

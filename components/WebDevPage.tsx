@@ -5,9 +5,17 @@ import FadeIn from './FadeIn';
 interface WebDevPageProps {
   onBack: () => void;
   onContact: () => void;
+  onAiAgents?: () => void;
+  onMarketing?: () => void;
+  onIndustries?: () => void;
 }
 
-const WebDevPage: React.FC<WebDevPageProps> = ({ onBack, onContact }) => {
+const WebDevPage: React.FC<WebDevPageProps> = ({ onBack, onContact, onAiAgents, onMarketing, onIndustries }) => {
+  const serviceLinks = [
+    { id: 'ai-agents', label: 'AI Agents', icon: 'comment-1', onClick: onAiAgents },
+    { id: 'marketing', label: 'Marketing', icon: 'trend-up-1', onClick: onMarketing },
+    { id: 'industries', label: 'Industries', icon: 'buildings-1', onClick: onIndustries },
+  ];
   const techStack = [
     { label: "React.js for interactive, app-like interfaces", icon: "code-1" },
     { label: "Tailwind CSS for bespoke, responsive styling", icon: "layout-9" },
@@ -17,15 +25,30 @@ const WebDevPage: React.FC<WebDevPageProps> = ({ onBack, onContact }) => {
 
   return (
     <div className="pt-24 md:pt-28 pb-14 md:pb-18 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {/* Back Navigation */}
-      <div className="mb-5 md:mb-6">
+      {/* Navigation Bar */}
+      <div className="mb-6 md:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <button 
           onClick={onBack}
           className="flex items-center gap-1.5 text-neutral-500 dark:text-neutral-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors group text-xs"
         >
-          <LineIcon name="arrow-left" className="text-sm group-hover:-translate-x-1 transition-transform" />
-          Back to Overview
+          <LineIcon name="arrow-left" className="text-base group-hover:-translate-x-1 transition-transform" />
+          Back to Home
         </button>
+        
+        {/* Quick Service Links */}
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mr-1">Also explore:</span>
+          {serviceLinks.map((link) => (
+            <button
+              key={link.id}
+              onClick={link.onClick}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 hover:border-brand-300 dark:hover:border-brand-500/50 text-neutral-600 dark:text-neutral-400 hover:text-brand-600 dark:hover:text-brand-400 transition-all text-xs"
+            >
+              <LineIcon name={link.icon} className="text-base" />
+              <span className="hidden sm:inline">{link.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Hero Section */}
@@ -33,7 +56,7 @@ const WebDevPage: React.FC<WebDevPageProps> = ({ onBack, onContact }) => {
         <div className="max-w-3xl">
           <FadeIn>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-brand-100 dark:bg-brand-500/15 mb-4 text-brand-600 dark:text-brand-400">
-              <LineIcon name="code-1" className="text-sm" />
+              <LineIcon name="code-1" className="text-base" />
               <span className="text-[10px] font-medium uppercase tracking-wider">Engineering over Templates</span>
             </div>
             <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-display font-semibold text-neutral-800 dark:text-neutral-100 mb-3 md:mb-4 leading-tight">

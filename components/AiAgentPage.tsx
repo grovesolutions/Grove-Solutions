@@ -1,30 +1,117 @@
 import React, { useState, useRef, useEffect } from 'react';
+import emailjs from '@emailjs/browser';
 import LineIcon from './LineIcon';
 import FadeIn from './FadeIn';
-import { sendMessageToGemini } from '../backend';
+import { sendMessageToGemini, SaplingResponse } from '../backend';
 import { Message } from '../types';
+
+// EmailJS Configuration
+const EMAILJS_SERVICE_ID = 'service_xi90wwp';
+const EMAILJS_TEMPLATE_ID = 'template_grove_contact';
+const EMAILJS_PUBLIC_KEY = 'l-yretOi4zMOb4niy';
+
+interface ActionCard {
+  type: 'contact' | 'quote' | 'demo' | 'email';
+  title: string;
+  description: string;
+  icon: string;
+}
+
+interface ExtendedMessage extends Message {
+  actions?: ActionCard[];
+}
 
 interface AiAgentPageProps {
   onBack: () => void;
   onContact: () => void;
+  onWebDev?: () => void;
+  onMarketing?: () => void;
+  onIndustries?: () => void;
 }
 
-const AiAgentPage: React.FC<AiAgentPageProps> = ({ onBack, onContact }) => {
+const AiAgentPage: React.FC<AiAgentPageProps> = ({ onBack, onContact, onWebDev, onMarketing, onIndustries }) => {
+  const serviceLinks = [
+    { id: 'web-dev', label: 'Web Development', icon: 'code-1', onClick: onWebDev },
+    { id: 'marketing', label: 'Marketing', icon: 'trend-up-1', onClick: onMarketing },
+    { id: 'industries', label: 'Industries', icon: 'buildings-1', onClick: onIndustries },
+  ];
   // Chat state for the interactive demo
-  const [messages, setMessages] = useState<Message[]>([
-    { role: 'model', text: "Hi! I'm Sapling, your AI assistant. Try asking me about our web development services, AI agents, or how we can help grow your business!" }
+  const [messages, setMessages] = useState<ExtendedMessage[]>([
+    { 
+      role: 'model', 
+      text: "Hi! I'm Sapling, your AI assistant. Try asking me about our web development services, AI agents, or how we can help grow your business!",
+      actions: [
+        { type: 'quote', title: 'Get a Quote', description: 'Free estimate', icon: 'calculator-1' },
+        { type: 'demo', title: 'Book a Demo', description: 'See it live', icon: 'calendar-days' },
+      ]
+    }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [showRequestForm, setShowRequestForm] = useState<ActionCard | null>(null);
+  const [requestForm, setRequestForm] = useState({ name: '', email: '', message: '' });
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [isSubmittingForm, setIsSubmittingForm] = useState(false);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
   };
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, showRequestForm]);
+
+  const handleActionClick = (action: ActionCard) => {
+    setShowRequestForm(action);
+    setFormSubmitted(false);
+    setRequestForm({ name: '', email: '', message: '' });
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!requestForm.name || !requestForm.email || isSubmittingForm) return;
+    
+    setIsSubmittingForm(true);
+    
+    const templateParams = {
+      to_email: 'grovesolutions.contact@gmail.com',
+      from_name: requestForm.name,
+      from_email: requestForm.email,
+      reply_to: requestForm.email,
+      message: `[${showRequestForm?.title}] ${requestForm.message || 'No additional message provided.'}`,
+    };
+
+    try {
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        templateParams,
+        EMAILJS_PUBLIC_KEY
+      );
+    
+    setFormSubmitted(true);
+    
+    setTimeout(() => {
+      setMessages(prev => [...prev, {
+        role: 'model',
+        text: `Thanks ${requestForm.name}! 🎉 We've received your ${showRequestForm?.title.toLowerCase()} request. We'll get back to you at ${requestForm.email} within 24 hours.`
+      }]);
+      setShowRequestForm(null);
+        setIsSubmittingForm(false);
+    }, 1500);
+    } catch (error) {
+      console.error("EmailJS error:", error);
+      setMessages(prev => [...prev, {
+        role: 'model',
+        text: "Sorry, there was an issue sending your request. Please try again or contact us directly at grovesolutions.contact@gmail.com"
+      }]);
+      setShowRequestForm(null);
+      setIsSubmittingForm(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,14 +121,67 @@ const AiAgentPage: React.FC<AiAgentPageProps> = ({ onBack, onContact }) => {
     setInput('');
     setIsLoading(true);
 
-    const newHistory: Message[] = [...messages, { role: 'user', text: userMessage }];
+    const newHistory: ExtendedMessage[] = [...messages, { role: 'user', text: userMessage }];
     setMessages(newHistory);
 
     try {
-      const responseText = await sendMessageToGemini(userMessage, newHistory);
-      setMessages(prev => [...prev, { role: 'model', text: responseText }]);
+      // Pass user info if we have it from a previous form submission
+      const userInfo = requestForm.name && requestForm.email 
+        ? { name: requestForm.name, email: requestForm.email }
+        : undefined;
+      
+      const response: SaplingResponse = await sendMessageToGemini(userMessage, newHistory, userInfo);
+      
+      // Handle agentic actions
+      if (response.action === 'collect_info') {
+        // AI wants to collect user info - show the form automatically
+        const requestType = response.requestType || 'contact';
+        const actionCard: ActionCard = {
+          type: requestType as ActionCard['type'],
+          title: requestType === 'quote' ? 'Get a Quote' : requestType === 'demo' ? 'Book a Demo' : 'Contact Us',
+          description: requestType === 'quote' ? 'Free estimate' : requestType === 'demo' ? 'See it live' : 'Send a message',
+          icon: requestType === 'quote' ? 'calculator-1' : requestType === 'demo' ? 'calendar-days' : 'envelope-1',
+        };
+        
+        setMessages(prev => [...prev, { role: 'model', text: response.text }]);
+        setShowRequestForm(actionCard);
+        setFormSubmitted(false);
+        setRequestForm({ name: '', email: '', message: '' });
+      } else if (response.action === 'email_sent') {
+        // AI successfully sent an email!
+        setMessages(prev => [...prev, { 
+          role: 'model', 
+          text: response.text + (response.emailSuccess ? ' ✅' : '')
+        }]);
+      } else {
+        // Normal response - check if it might need action cards
+        const needsActions = response.text.toLowerCase().includes('contact') || 
+                            response.text.toLowerCase().includes('quote') ||
+                            response.text.toLowerCase().includes('demo') ||
+                            response.text.toLowerCase().includes('get in touch') ||
+                            response.text.toLowerCase().includes('help you');
+      
+      const newMessage: ExtendedMessage = {
+        role: 'model',
+          text: response.text,
+        ...(needsActions && {
+          actions: [
+            { type: 'contact', title: 'Contact Us', description: 'Send a message', icon: 'envelope-1' },
+            { type: 'quote', title: 'Get a Quote', description: 'Free estimate', icon: 'calculator-1' },
+          ]
+        })
+      };
+      
+      setMessages(prev => [...prev, newMessage]);
+      }
     } catch (error) {
-      setMessages(prev => [...prev, { role: 'model', text: "Sorry, I'm having trouble connecting right now. Please try again!" }]);
+      setMessages(prev => [...prev, { 
+        role: 'model', 
+        text: "Sorry, I'm having trouble connecting right now. Try the quick actions below!", 
+        actions: [
+          { type: 'contact', title: 'Contact Us', description: 'Send a message', icon: 'envelope-1' },
+        ]
+      }]);
     } finally {
       setIsLoading(false);
     }
@@ -68,20 +208,36 @@ const AiAgentPage: React.FC<AiAgentPageProps> = ({ onBack, onContact }) => {
   return (
     <div className="pt-24 md:pt-28 pb-14 md:pb-18 animate-in fade-in slide-in-from-bottom-4 duration-500 min-h-screen">
       <div>
-        <div className="mb-5 md:mb-6">
+        {/* Navigation Bar */}
+        <div className="mb-6 md:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <button 
             onClick={onBack}
             className="flex items-center gap-1.5 text-neutral-500 dark:text-neutral-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors group text-xs"
           >
-            <LineIcon name="arrow-left" className="text-sm group-hover:-translate-x-1 transition-transform" />
+            <LineIcon name="arrow-left" className="text-base group-hover:-translate-x-1 transition-transform" />
             Back to Home
           </button>
+          
+          {/* Quick Service Links */}
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mr-1">Also explore:</span>
+            {serviceLinks.map((link) => (
+              <button
+                key={link.id}
+                onClick={link.onClick}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 hover:border-brand-300 dark:hover:border-brand-500/50 text-neutral-600 dark:text-neutral-400 hover:text-brand-600 dark:hover:text-brand-400 transition-all text-xs"
+              >
+                <LineIcon name={link.icon} className="text-base" />
+                <span className="hidden sm:inline">{link.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="max-w-3xl mb-10 md:mb-14">
           <FadeIn>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-brand-100 dark:bg-brand-500/15 mb-4 text-brand-600 dark:text-brand-400">
-              <LineIcon name="comment-1" className="text-sm" />
+              <LineIcon name="comment-1" className="text-base" />
               <span className="text-[10px] font-medium uppercase tracking-wider">Proprietary Tech</span>
             </div>
             <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-display font-semibold text-neutral-800 dark:text-neutral-100 mb-3 md:mb-4 leading-tight">
@@ -139,52 +295,146 @@ const AiAgentPage: React.FC<AiAgentPageProps> = ({ onBack, onContact }) => {
                       </div>
                       
                       {/* Messages Area */}
-                      <div className="flex-1 overflow-y-auto p-3 md:p-4 space-y-3 bg-neutral-50 dark:bg-neutral-900">
+                      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-3 bg-neutral-50 dark:bg-neutral-900 scroll-smooth">
                           {messages.map((msg, idx) => (
-                            <div 
-                              key={idx} 
-                              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                            >
+                            <div key={idx} className="space-y-2">
+                              <div className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                               <div 
-                                className={`max-w-[85%] p-3 rounded-lg text-xs leading-relaxed ${
+                                  className={`max-w-[85%] px-4 py-2.5 text-[13px] leading-relaxed ${
                                   msg.role === 'user' 
-                                    ? 'bg-brand-500 text-white rounded-br-none' 
-                                    : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 rounded-bl-none border border-neutral-200 dark:border-neutral-700'
+                                      ? 'bg-brand-500 text-white rounded-[20px] rounded-br-md shadow-sm' 
+                                      : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 rounded-[20px] rounded-bl-md shadow-sm'
                                 }`}
                               >
                                 {msg.text}
+                                </div>
                               </div>
+                              
+                              {/* Action Cards */}
+                              {msg.actions && msg.actions.length > 0 && (
+                                <div className="flex gap-1.5 pl-1 flex-wrap">
+                                  {msg.actions.map((action, actionIdx) => (
+                                    <button
+                                      key={actionIdx}
+                                      onClick={() => handleActionClick(action)}
+                                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-brand-50 dark:bg-brand-900/20 hover:bg-brand-100 dark:hover:bg-brand-900/30 border border-brand-200 dark:border-brand-800/50 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                                    >
+                                      <div className="w-5 h-5 rounded-full bg-brand-500/10 flex items-center justify-center">
+                                        <LineIcon name={action.icon} className="text-[10px] text-brand-600 dark:text-brand-400" />
+                                      </div>
+                                      <span className="text-[11px] font-medium text-brand-700 dark:text-brand-300">{action.title}</span>
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
                             </div>
                           ))}
+                          
+                          {/* Request Form */}
+                          {showRequestForm && (
+                            <div className="bg-white dark:bg-neutral-800 rounded-xl p-3 shadow-sm border border-neutral-200 dark:border-neutral-700">
+                              {!formSubmitted ? (
+                                <>
+                                  <div className="flex items-center justify-between mb-2">
+                                    <div className="flex items-center gap-1.5">
+                                      <div className="w-6 h-6 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center">
+                                        <LineIcon name={showRequestForm.icon} className="text-xs text-brand-600" />
+                                      </div>
+                                      <h4 className="font-medium text-xs text-neutral-800 dark:text-neutral-200">{showRequestForm.title}</h4>
+                                    </div>
+                                    <button 
+                                      onClick={() => setShowRequestForm(null)}
+                                      className="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
+                                    >
+                                      <LineIcon name="xmark" className="text-xs" />
+                                    </button>
+                                  </div>
+                                  <form onSubmit={handleFormSubmit} className="space-y-2">
+                                    <input
+                                      type="text"
+                                      placeholder="Your name"
+                                      value={requestForm.name}
+                                      onChange={(e) => setRequestForm(prev => ({ ...prev, name: e.target.value }))}
+                                      className="chat-input-clean w-full px-2.5 py-1.5 rounded-lg bg-neutral-100 dark:bg-neutral-900 text-xs text-neutral-800 dark:text-neutral-200 placeholder:text-neutral-400"
+                                      required
+                                    />
+                                    <input
+                                      type="email"
+                                      placeholder="Your email"
+                                      value={requestForm.email}
+                                      onChange={(e) => setRequestForm(prev => ({ ...prev, email: e.target.value }))}
+                                      className="chat-input-clean w-full px-2.5 py-1.5 rounded-lg bg-neutral-100 dark:bg-neutral-900 text-xs text-neutral-800 dark:text-neutral-200 placeholder:text-neutral-400"
+                                      required
+                                    />
+                                    <textarea
+                                      placeholder="Tell us about your project (optional)"
+                                      value={requestForm.message}
+                                      onChange={(e) => setRequestForm(prev => ({ ...prev, message: e.target.value }))}
+                                      className="chat-input-clean w-full px-2.5 py-1.5 rounded-lg bg-neutral-100 dark:bg-neutral-900 text-xs text-neutral-800 dark:text-neutral-200 placeholder:text-neutral-400 resize-none h-12"
+                                    />
+                                    <button
+                                      type="submit"
+                                      disabled={isSubmittingForm}
+                                      className="w-full py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white font-medium text-xs transition-colors flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
+                                    >
+                                      {isSubmittingForm ? (
+                                        <>
+                                          <LineIcon name="spinner-3" className="text-[10px] lni-is-spinning" />
+                                          Sending...
+                                        </>
+                                      ) : (
+                                        <>
+                                      <LineIcon name="enter" className="text-[10px]" />
+                                      Send Request
+                                        </>
+                                      )}
+                                    </button>
+                                  </form>
+                                </>
+                              ) : (
+                                <div className="text-center py-3">
+                                  <div className="w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center mx-auto mb-2">
+                                    <LineIcon name="check-circle-1" className="text-base text-brand-500" />
+                                  </div>
+                                  <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Request sent!</p>
+                                  <p className="text-[10px] text-neutral-500 mt-0.5">We'll be in touch soon</p>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          
                           {isLoading && (
-                            <div className="flex justify-start">
-                              <div className="bg-white dark:bg-neutral-800 p-3 rounded-lg rounded-bl-none border border-neutral-200 dark:border-neutral-700">
-                                <LineIcon name="spinner-3" className="text-sm lni-is-spinning text-brand-500" />
+                            <div className="flex justify-start pl-1">
+                                <div className="flex gap-1">
+                                  <span className="w-2 h-2 rounded-full bg-brand-400 animate-bounce [animation-delay:-0.3s]"></span>
+                                  <span className="w-2 h-2 rounded-full bg-brand-400 animate-bounce [animation-delay:-0.15s]"></span>
+                                  <span className="w-2 h-2 rounded-full bg-brand-400 animate-bounce"></span>
                               </div>
                             </div>
                           )}
-                          <div ref={messagesEndRef} />
                       </div>
 
                       {/* Input Area */}
-                      <form onSubmit={handleSubmit} className="p-3 bg-neutral-50 dark:bg-neutral-800 border-t border-neutral-200 dark:border-neutral-700 flex gap-2">
+                      <div className="p-3 bg-white dark:bg-neutral-800">
+                        <form onSubmit={handleSubmit} className="flex items-center gap-2 rounded-full px-4 py-2 bg-neutral-100 dark:bg-neutral-900">
                         <input
                           type="text"
                           value={input}
                           onChange={(e) => setInput(e.target.value)}
-                          placeholder="Try asking Sapling a question..."
-                          className="flex-1 bg-white dark:bg-neutral-900 text-neutral-800 dark:text-neutral-100 text-xs rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors border border-neutral-200 dark:border-neutral-700"
+                            placeholder={isLoading ? "Waiting for response..." : "Type a message..."}
+                            disabled={isLoading}
+                            className="chat-input-clean flex-1 bg-transparent text-neutral-800 dark:text-neutral-100 text-sm min-w-0 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 disabled:opacity-50"
                         />
                         <button 
                           type="submit"
                           disabled={isLoading || !input.trim()}
-                          className="bg-brand-500 hover:bg-brand-600 text-white px-3 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+                            className="chat-input-clean flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-brand-500 hover:bg-brand-600 text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                           aria-label="Send message"
                         >
-                          <span className="hidden sm:inline text-xs font-medium">Send</span>
-                          <LineIcon name="location-arrow-right" className="text-sm" />
+                            <LineIcon name="arrow-upward" className="text-sm" />
                         </button>
                       </form>
+                      </div>
                   </div>
                 </FadeIn>
             </div>

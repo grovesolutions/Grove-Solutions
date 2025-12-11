@@ -10,9 +10,10 @@ import WhyUsPage from './components/WhyUsPage';
 import AiAgentPage from './components/AiAgentPage';
 import MarketingPage from './components/MarketingPage';
 import IndustriesPage from './components/IndustriesPage';
+import PricingPage from './components/PricingPage';
 import FadeIn from './components/FadeIn';
 
-type Page = 'home' | 'web-dev' | 'why-us' | 'ai-agents' | 'marketing' | 'industries';
+type Page = 'home' | 'web-dev' | 'why-us' | 'ai-agents' | 'marketing' | 'industries' | 'pricing';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
@@ -53,6 +54,10 @@ function App() {
           onNavigate={navigateToHome} 
           onWhyUs={() => navigateToPage('why-us')}
           onIndustries={() => navigateToPage('industries')}
+          onWebDev={() => navigateToPage('web-dev')}
+          onAiAgents={() => navigateToPage('ai-agents')}
+          onMarketing={() => navigateToPage('marketing')}
+          onPricing={() => navigateToPage('pricing')}
         />
         
         <main className="max-w-[1200px] mx-auto px-4 sm:px-6">
@@ -96,7 +101,10 @@ function App() {
           {currentPage === 'web-dev' && (
             <WebDevPage 
               onBack={() => navigateToHome()} 
-              onContact={() => navigateToHome('contact')} 
+              onContact={() => navigateToHome('contact')}
+              onAiAgents={() => navigateToPage('ai-agents')}
+              onMarketing={() => navigateToPage('marketing')}
+              onIndustries={() => navigateToPage('industries')}
             />
           )}
 
@@ -111,6 +119,9 @@ function App() {
             <AiAgentPage
               onBack={() => navigateToHome()}
               onContact={() => navigateToHome('contact')}
+              onWebDev={() => navigateToPage('web-dev')}
+              onMarketing={() => navigateToPage('marketing')}
+              onIndustries={() => navigateToPage('industries')}
             />
           )}
 
@@ -118,6 +129,9 @@ function App() {
             <MarketingPage
               onBack={() => navigateToHome()}
               onContact={() => navigateToHome('contact')}
+              onWebDev={() => navigateToPage('web-dev')}
+              onAiAgents={() => navigateToPage('ai-agents')}
+              onIndustries={() => navigateToPage('industries')}
             />
           )}
 
@@ -125,6 +139,21 @@ function App() {
             <IndustriesPage
               onBack={() => navigateToHome()}
               onContact={() => navigateToHome('contact')}
+              onWebDev={() => navigateToPage('web-dev')}
+              onAiAgents={() => navigateToPage('ai-agents')}
+              onMarketing={() => navigateToPage('marketing')}
+              onPricing={() => navigateToPage('pricing')}
+            />
+          )}
+
+          {currentPage === 'pricing' && (
+            <PricingPage
+              onBack={() => navigateToHome()}
+              onContact={() => navigateToHome('contact')}
+              onWebDev={() => navigateToPage('web-dev')}
+              onAiAgents={() => navigateToPage('ai-agents')}
+              onMarketing={() => navigateToPage('marketing')}
+              onIndustries={() => navigateToPage('industries')}
             />
           )}
         </main>
@@ -135,6 +164,7 @@ function App() {
           onNavMarketing={() => navigateToPage('marketing')}
           onNavConsulting={() => navigateToHome('contact')}
           onNavIndustries={() => navigateToPage('industries')}
+          onNavPricing={() => navigateToPage('pricing')}
         />
         <ChatWidget />
       </div>

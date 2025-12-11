@@ -5,6 +5,10 @@ import FadeIn from './FadeIn';
 interface IndustriesPageProps {
   onBack: () => void;
   onContact: () => void;
+  onWebDev?: () => void;
+  onAiAgents?: () => void;
+  onMarketing?: () => void;
+  onPricing?: () => void;
 }
 
 interface Feature {
@@ -33,18 +37,16 @@ interface Product {
   features: string[];
 }
 
-interface PricingTier {
-  name: string;
-  setup: string;
-  monthly: string;
-  popular?: boolean;
-  description: string;
-  features: string[];
-  bestFor: string;
-}
 
-const IndustriesPage: React.FC<IndustriesPageProps> = ({ onBack, onContact }) => {
+const IndustriesPage: React.FC<IndustriesPageProps> = ({ onBack, onContact, onWebDev, onAiAgents, onMarketing, onPricing }) => {
   const [activeIndustry, setActiveIndustry] = useState<string>('service-providers');
+
+  const serviceLinks = [
+    { id: 'web-dev', label: 'Web Development', icon: 'code-1', onClick: onWebDev },
+    { id: 'ai-agents', label: 'AI Agents', icon: 'comment-1', onClick: onAiAgents },
+    { id: 'marketing', label: 'Marketing', icon: 'trend-up-1', onClick: onMarketing },
+    { id: 'pricing', label: 'Pricing', icon: 'label-dollar-2', onClick: onPricing },
+  ];
 
   const industries: Industry[] = [
     {
@@ -179,56 +181,6 @@ const IndustriesPage: React.FC<IndustriesPageProps> = ({ onBack, onContact }) =>
     }
   ];
 
-  const pricingTiers: PricingTier[] = [
-    {
-      name: 'Starter',
-      setup: '$399',
-      monthly: '$39',
-      description: 'Perfect for small, stable businesses getting online',
-      bestFor: 'New businesses establishing their digital presence',
-      features: [
-        'Custom 3–5 page website',
-        'Mobile-responsive design',
-        'Contact form integration',
-        'Basic SEO setup',
-        'Hosting + uptime monitoring',
-        '1 update per month'
-      ]
-    },
-    {
-      name: 'Growth',
-      setup: '$659',
-      monthly: '$69',
-      popular: true,
-      description: 'For businesses actively growing and scaling',
-      bestFor: 'Established businesses ready to accelerate',
-      features: [
-        'Everything in Starter',
-        'Unlimited pages',
-        'Advanced animations',
-        'Monthly performance reports',
-        'Up to 3 updates/month',
-        'Conversion-optimized layout',
-        'AI Voice Integration'
-      ]
-    },
-    {
-      name: 'Business Pro',
-      setup: '$999',
-      monthly: '$199',
-      description: 'For revenue-focused businesses that want it all',
-      bestFor: 'Scaling brands, agencies, and SaaS companies',
-      features: [
-        'Everything in Growth',
-        'Unlimited updates',
-        'Ongoing CRO improvements',
-        'Advanced analytics dashboard',
-        'Quarterly design tweaks',
-        '24-hour support response',
-        'All premium features'
-      ]
-    }
-  ];
 
   const getColorClasses = (color: string) => {
     const colors: Record<string, { bg: string; text: string; glow: string; border: string; gradient: string }> = {
@@ -277,22 +229,37 @@ const IndustriesPage: React.FC<IndustriesPageProps> = ({ onBack, onContact }) =>
   return (
     <div className="pt-24 md:pt-28 pb-14 md:pb-18 animate-in fade-in slide-in-from-bottom-4 duration-500 min-h-screen">
       <div>
-        {/* Back Button */}
-        <div className="mb-5 md:mb-6">
+        {/* Navigation Bar */}
+        <div className="mb-6 md:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <button 
             onClick={onBack}
             className="flex items-center gap-1.5 text-neutral-500 dark:text-neutral-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors group text-xs"
           >
-            <LineIcon name="arrow-left" className="text-sm group-hover:-translate-x-1 transition-transform" />
+            <LineIcon name="arrow-left" className="text-base group-hover:-translate-x-1 transition-transform" />
             Back to Home
           </button>
+          
+          {/* Quick Service Links */}
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mr-1">Also explore:</span>
+            {serviceLinks.map((link) => (
+              <button
+                key={link.id}
+                onClick={link.onClick}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 hover:border-brand-300 dark:hover:border-brand-500/50 text-neutral-600 dark:text-neutral-400 hover:text-brand-600 dark:hover:text-brand-400 transition-all text-xs"
+              >
+                <LineIcon name={link.icon} className="text-base" />
+                <span className="hidden sm:inline">{link.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Hero Section */}
         <div className="max-w-4xl mb-12 md:mb-16">
           <FadeIn>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-brand-100 dark:bg-brand-500/15 mb-4 text-brand-600 dark:text-brand-400">
-              <LineIcon name="buildings-1" className="text-sm" />
+              <LineIcon name="buildings-1" className="text-base" />
               <span className="text-[10px] font-medium uppercase tracking-wider">Industry Solutions</span>
             </div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-display font-semibold text-neutral-800 dark:text-neutral-100 mb-3 md:mb-4 leading-tight">
@@ -381,8 +348,8 @@ const IndustriesPage: React.FC<IndustriesPageProps> = ({ onBack, onContact }) =>
                     key={fIdx} 
                     className="p-4 rounded-xl bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm border border-neutral-200/60 dark:border-neutral-700/60 hover:shadow-md transition-all group"
                   >
-                    <div className={`w-9 h-9 rounded-lg ${activeColors.bg} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
-                      <LineIcon name={feature.icon} className={`text-lg ${activeColors.text}`} />
+                    <div className={`w-10 h-10 rounded-lg ${activeColors.bg} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+                      <LineIcon name={feature.icon} className={`text-xl ${activeColors.text}`} />
                     </div>
                     <h3 className="text-sm font-display font-semibold text-neutral-900 dark:text-neutral-100 mb-1">
                       {feature.title}
@@ -419,7 +386,7 @@ const IndustriesPage: React.FC<IndustriesPageProps> = ({ onBack, onContact }) =>
           <div className="mb-12 md:mb-16">
             <div className="text-center mb-8 md:mb-10">
               <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 mb-3 text-neutral-600 dark:text-neutral-400">
-                <LineIcon name="gear-1" className="text-sm" />
+                <LineIcon name="gear-1" className="text-base" />
                 <span className="text-[10px] font-medium uppercase tracking-wider">The Grove Ecosystem</span>
               </div>
               <h2 className="text-xl md:text-2xl lg:text-3xl font-display font-semibold text-neutral-800 dark:text-neutral-100 mb-3">
@@ -430,26 +397,26 @@ const IndustriesPage: React.FC<IndustriesPageProps> = ({ onBack, onContact }) =>
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {products.map((product, idx) => (
                 <FadeIn key={product.id} delay={idx * 80}>
-                  <div className="h-full p-5 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200/80 dark:border-neutral-700 shadow-sm hover:shadow-lg dark:shadow-none transition-all group hover:border-brand-300 dark:hover:border-brand-500/50">
+                  <div className="aspect-square p-5 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200/80 dark:border-neutral-700 shadow-sm hover:shadow-lg dark:shadow-none transition-all group hover:border-brand-300 dark:hover:border-brand-500/50 flex flex-col">
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-lg bg-brand-100 dark:bg-brand-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <LineIcon name={product.icon} className="text-xl text-brand-600 dark:text-brand-400" />
+                      <div className="w-11 h-11 rounded-lg bg-brand-100 dark:bg-brand-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <LineIcon name={product.icon} className="text-2xl text-brand-600 dark:text-brand-400" />
                       </div>
                       <div>
                         <h3 className="text-sm font-display font-bold text-brand-600 dark:text-brand-400">{product.name}</h3>
                         <p className="text-[9px] text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">{product.fullName}</p>
                       </div>
                     </div>
-                    <p className="text-xs text-neutral-600 dark:text-neutral-300 mb-3 leading-relaxed">
+                    <p className="text-xs text-neutral-600 dark:text-neutral-300 mb-3 leading-relaxed flex-grow line-clamp-3">
                       {product.description}
                     </p>
-                    <ul className="space-y-1.5">
+                    <ul className="space-y-1 mt-auto">
                       {product.features.map((feature, fIdx) => (
                         <li key={fIdx} className="flex items-center gap-2 text-[11px] text-neutral-500 dark:text-neutral-400">
-                          <LineIcon name="check-circle-1" className="text-brand-500 text-xs flex-shrink-0" />
+                          <LineIcon name="check-circle-1" className="text-brand-500 text-sm flex-shrink-0" />
                           {feature}
                         </li>
                       ))}
@@ -461,101 +428,6 @@ const IndustriesPage: React.FC<IndustriesPageProps> = ({ onBack, onContact }) =>
           </div>
         </FadeIn>
 
-        {/* Pricing Section */}
-        <FadeIn delay={150}>
-          <div className="mb-12 md:mb-16">
-            <div className="text-center mb-8 md:mb-10">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-brand-100 dark:bg-brand-500/15 mb-3 text-brand-600 dark:text-brand-400">
-                <LineIcon name="label-dollar-2" className="text-sm" />
-                <span className="text-[10px] font-medium uppercase tracking-wider">Simple Pricing</span>
-              </div>
-              <h2 className="text-xl md:text-2xl lg:text-3xl font-display font-semibold text-neutral-800 dark:text-neutral-100 mb-3">
-                Plans That <span className="text-leaf-shiny">Scale With You</span>
-              </h2>
-              <p className="text-sm text-neutral-500 dark:text-neutral-400 max-w-xl mx-auto">
-                No hidden fees. No long-term contracts. Start small and upgrade as you grow—we credit your loyalty.
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-4 md:gap-6 max-w-5xl mx-auto">
-              {pricingTiers.map((tier, idx) => (
-                <FadeIn key={tier.name} delay={idx * 100}>
-                  <div className={`
-                    relative h-full p-5 md:p-6 rounded-xl border transition-all
-                    ${tier.popular 
-                      ? 'bg-brand-50 dark:bg-brand-500/10 border-brand-300 dark:border-brand-500/40 shadow-lg scale-[1.02]' 
-                      : 'bg-white dark:bg-neutral-800 border-neutral-200/80 dark:border-neutral-700 shadow-sm hover:shadow-md'
-                    }
-                  `}>
-                    {tier.popular && (
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-brand-500 text-white text-[10px] font-semibold uppercase tracking-wider rounded-full">
-                        Most Popular
-                      </div>
-                    )}
-                    
-                    <div className="mb-4">
-                      <h3 className={`text-lg font-display font-semibold mb-1 ${tier.popular ? 'text-brand-700 dark:text-brand-300' : 'text-neutral-900 dark:text-neutral-100'}`}>
-                        {tier.name}
-                      </h3>
-                      <p className="text-xs text-neutral-500 dark:text-neutral-400">{tier.description}</p>
-                    </div>
-
-                    <div className="mb-4">
-                      <div className="flex items-baseline gap-1">
-                        <span className={`text-3xl md:text-4xl font-display font-bold ${tier.popular ? 'text-brand-600 dark:text-brand-400' : 'text-neutral-900 dark:text-neutral-100'}`}>
-                          {tier.setup}
-                        </span>
-                        <span className="text-xs text-neutral-500 dark:text-neutral-400">setup</span>
-                      </div>
-                      <div className="flex items-baseline gap-1 mt-1">
-                        <span className={`text-lg font-semibold ${tier.popular ? 'text-brand-600 dark:text-brand-400' : 'text-neutral-700 dark:text-neutral-300'}`}>
-                          {tier.monthly}
-                        </span>
-                        <span className="text-xs text-neutral-500 dark:text-neutral-400">/month</span>
-                      </div>
-                    </div>
-
-                    <div className="mb-4 pb-4 border-b border-neutral-200 dark:border-neutral-700">
-                      <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
-                        <span className="font-medium">Best for:</span> {tier.bestFor}
-                      </p>
-                    </div>
-
-                    <ul className="space-y-2 mb-6">
-                      {tier.features.map((feature, fIdx) => (
-                        <li key={fIdx} className="flex items-start gap-2 text-xs text-neutral-600 dark:text-neutral-300">
-                          <LineIcon name="check-circle-1" className={`text-sm flex-shrink-0 mt-0.5 ${tier.popular ? 'text-brand-500' : 'text-brand-500'}`} />
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-
-                    <button 
-                      onClick={onContact}
-                      className={`
-                        w-full py-2.5 rounded-lg font-medium text-sm transition-all
-                        ${tier.popular 
-                          ? 'btn-leaf' 
-                          : 'border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700'
-                        }
-                      `}
-                    >
-                      Get Started
-                    </button>
-                  </div>
-                </FadeIn>
-              ))}
-            </div>
-
-            {/* Add-ons - Simple inline text */}
-            <FadeIn delay={300}>
-              <p className="mt-6 text-center text-xs text-neutral-500 dark:text-neutral-400">
-                <span className="font-medium text-neutral-600 dark:text-neutral-300">Add-ons:</span>{' '}
-                Payments ($75) • Booking ($75) • Reports ($59/mo) • AI Voice ($199/mo)
-              </p>
-            </FadeIn>
-          </div>
-        </FadeIn>
 
 
         {/* Final CTA Section */}
