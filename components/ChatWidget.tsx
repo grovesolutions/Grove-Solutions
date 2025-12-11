@@ -16,6 +16,7 @@ interface ExtendedMessage extends Message {
 
 const ChatWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [messages, setMessages] = useState<ExtendedMessage[]>([
     { 
       role: 'model', 
@@ -43,6 +44,25 @@ const ChatWidget: React.FC = () => {
       scrollToBottom();
     }
   }, [messages, isOpen, showRequestForm]);
+
+  useEffect(() => {
+    if (isFullscreen && isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isFullscreen, isOpen]);
+
+  const containerClasses = isFullscreen 
+    ? "fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/20 backdrop-blur-sm"
+    : "fixed bottom-4 right-4 md:bottom-5 md:right-5 z-50 flex flex-col items-end";
+
+  const chatWindowClasses = isFullscreen
+    ? "w-full h-full sm:h-[calc(100vh-2rem)] sm:w-[min(960px,calc(100vw-2rem))] md:w-[min(1100px,calc(100vw-3rem))] md:h-[calc(100vh-3rem)] bg-[var(--bg-primary)] rounded-3xl shadow-2xl overflow-hidden flex flex-col transition-all duration-300 ease-out animate-in slide-in-from-bottom-4"
+    : "mb-3 w-[calc(100vw-2rem)] sm:w-80 md:w-[22rem] bg-[var(--bg-primary)] rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[70vh] sm:h-[480px] max-h-[520px] transition-all duration-300 ease-out animate-in slide-in-from-bottom-4";
 
   const handleActionClick = (action: ActionCard) => {
     setShowRequestForm(action);
@@ -158,10 +178,10 @@ const ChatWidget: React.FC = () => {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 md:bottom-5 md:right-5 z-50 flex flex-col items-end">
+    <div className={containerClasses}>
       {/* Chat Window */}
       {isOpen && (
-        <div className="mb-3 w-[calc(100vw-2rem)] sm:w-80 md:w-[22rem] bg-[var(--bg-primary)] rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[70vh] sm:h-[480px] max-h-[520px] transition-all duration-300 ease-out animate-in slide-in-from-bottom-4">
+        <div className={chatWindowClasses}>
           {/* Header */}
           <div className="bg-gradient-to-r from-brand-500 to-brand-600 p-4 flex justify-between items-center">
             <div className="flex items-center gap-3">
@@ -173,13 +193,26 @@ const ChatWidget: React.FC = () => {
                 <span className="text-[10px] text-white/70">Always here to help</span>
               </div>
             </div>
-            <button 
-              onClick={() => setIsOpen(false)}
-              className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
-              aria-label="Close chat"
-            >
-              <LineIcon name="xmark" className="text-sm text-white" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsFullscreen(prev => !prev)}
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+                title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+              >
+                <LineIcon name={isFullscreen ? "exit" : "expand-square-4"} className="text-sm text-white" />
+              </button>
+              <button 
+                onClick={() => {
+                  setIsOpen(false);
+                  setIsFullscreen(false);
+                }}
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                aria-label="Close chat"
+              >
+                <LineIcon name="xmark" className="text-sm text-white" />
+              </button>
+            </div>
           </div>
 
           {/* Messages Area */}
@@ -333,7 +366,10 @@ const ChatWidget: React.FC = () => {
       {/* Toggle Button */}
       {!isOpen && (
         <button 
-          onClick={() => setIsOpen(true)}
+          onClick={() => {
+            setIsFullscreen(false);
+            setIsOpen(true);
+          }}
           className="btn-leaf px-5 py-2.5 rounded-lg shadow-md shadow-brand-500/25 flex items-center justify-center gap-2"
           aria-label="Open chat"
         >
