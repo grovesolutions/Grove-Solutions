@@ -4,6 +4,7 @@ import { getFirebaseApp } from "./firebase";
 export interface ContactRequestPayload {
   name: string;
   email: string;
+  phone?: string;
   message: string;
   requestType?: string;
 }

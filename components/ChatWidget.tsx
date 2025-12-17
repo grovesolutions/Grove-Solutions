@@ -31,7 +31,7 @@ const ChatWidget: React.FC = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showRequestForm, setShowRequestForm] = useState<ActionCard | null>(null);
-  const [requestForm, setRequestForm] = useState({ name: '', email: '', message: '' });
+  const [requestForm, setRequestForm] = useState({ name: '', email: '', phone: '', message: '' });
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [isSubmittingForm, setIsSubmittingForm] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -68,7 +68,7 @@ const ChatWidget: React.FC = () => {
   const handleActionClick = (action: ActionCard) => {
     setShowRequestForm(action);
     setFormSubmitted(false);
-    setRequestForm({ name: '', email: '', message: '' });
+    setRequestForm({ name: '', email: '', phone: '', message: '' });
   };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
@@ -81,6 +81,7 @@ const ChatWidget: React.FC = () => {
       await submitContactRequest({
         name: requestForm.name.trim(),
         email: requestForm.email.trim(),
+        phone: requestForm.phone?.trim(),
         requestType: showRequestForm?.type || 'contact',
         message: `[${showRequestForm?.title || 'Contact'}] ${requestForm.message || 'No additional message provided.'}`.trim(),
       });
@@ -91,10 +92,10 @@ const ChatWidget: React.FC = () => {
     setTimeout(() => {
       setMessages(prev => [...prev, {
         role: 'model',
-          text: `Thanks ${requestForm.name}! 🎉 We've received your ${showRequestForm?.title?.toLowerCase() || 'contact'} request. We'll get back to you at ${requestForm.email} within 24 hours.`
+          text: `Thanks ${requestForm.name}! 🎉 We've received your ${showRequestForm?.title?.toLowerCase() || 'contact'} request. We'll get back to you at ${requestForm.email}${requestForm.phone ? ` or ${requestForm.phone}` : ''} within 24 hours.`
       }]);
       setShowRequestForm(null);
-        setRequestForm({ name: '', email: '', message: '' });
+        setRequestForm({ name: '', email: '', phone: '', message: '' });
     }, 1500);
     } catch (error) {
       console.error("Contact request error:", error);
@@ -122,7 +123,7 @@ const ChatWidget: React.FC = () => {
     try {
       // Pass user info if we have it from a previous form submission
       const userInfo = requestForm.name && requestForm.email 
-        ? { name: requestForm.name, email: requestForm.email }
+        ? { name: requestForm.name, email: requestForm.email, phone: requestForm.phone }
         : undefined;
       
       const response: SaplingResponse = await sendMessageToGemini(userMessage, newHistory, userInfo);
@@ -141,7 +142,7 @@ const ChatWidget: React.FC = () => {
         setMessages(prev => [...prev, { role: 'model', text: response.text }]);
         setShowRequestForm(actionCard);
         setFormSubmitted(false);
-        setRequestForm({ name: '', email: '', message: '' });
+        setRequestForm({ name: '', email: '', phone: '', message: '' });
       } else if (response.action === 'email_sent') {
         // AI successfully sent an email!
         setMessages(prev => [...prev, { 
@@ -289,6 +290,13 @@ const ChatWidget: React.FC = () => {
                         onChange={(e) => setRequestForm(prev => ({ ...prev, email: e.target.value }))}
                         className="chat-input-clean w-full px-3 py-2 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] transition-colors"
                         required
+                      />
+                      <input
+                        type="tel"
+                        placeholder="Your phone (optional)"
+                        value={requestForm.phone}
+                        onChange={(e) => setRequestForm(prev => ({ ...prev, phone: e.target.value }))}
+                        className="chat-input-clean w-full px-3 py-2 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] transition-colors"
                       />
                       <textarea
                         placeholder="Tell us about your project (optional)"

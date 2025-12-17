@@ -8,10 +8,9 @@ interface NavbarProps {
   onWebDev?: () => void;
   onAiAgents?: () => void;
   onMarketing?: () => void;
-  onPricing?: () => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ onNavigate, onWhyUs, onIndustries, onWebDev, onAiAgents, onMarketing, onPricing }) => {
+const Navbar: React.FC<NavbarProps> = ({ onNavigate, onWhyUs, onIndustries, onWebDev, onAiAgents, onMarketing }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
@@ -49,8 +48,6 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, onWhyUs, onIndustries, onWe
       onAiAgents();
     } else if (type === 'page' && id === 'marketing' && onMarketing) {
       onMarketing();
-    } else if (type === 'page' && id === 'pricing' && onPricing) {
-      onPricing();
     } else {
       onNavigate(id);
     }
@@ -129,13 +126,6 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, onWhyUs, onIndustries, onWe
           >
             Why Us
           </a>
-          <a 
-            href="#pricing"
-            onClick={(e) => handleNavClick(e, 'page', 'pricing')}
-            className="text-xs font-medium text-neutral-500 dark:text-neutral-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
-          >
-            Pricing
-          </a>
           
           <a 
             href="#contact" 
@@ -203,14 +193,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, onWhyUs, onIndustries, onWe
           >
             Why Us
           </a>
-          <a 
-            href="#pricing"
-            className="text-neutral-600 dark:text-neutral-300 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-neutral-100/50 dark:hover:bg-neutral-900/50 rounded-md px-3 py-2.5 transition-colors text-sm"
-            onClick={(e) => handleNavClick(e, 'page', 'pricing')}
-          >
-            Pricing
-          </a>
-          <div className="pt-2 mt-1">
+          <div className="pt-2 mt-1 space-y-2">
             <a 
               href="#contact" 
               onClick={(e) => handleNavClick(e, 'scroll', 'contact')}

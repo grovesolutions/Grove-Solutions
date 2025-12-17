@@ -16,12 +16,14 @@ const Contact: React.FC = () => {
     const formData = new FormData(form);
     const name = formData.get('name') as string;
     const email = formData.get('email') as string;
+    const phone = formData.get('phone') as string;
     const message = formData.get('message') as string;
 
     try {
       await submitContactRequest({
         name: name.trim(),
         email: email.trim(),
+        phone: phone?.trim(),
         message: message.trim(),
         requestType: 'contact',
       });
@@ -78,6 +80,16 @@ const Contact: React.FC = () => {
                       id="email"
                       required
                       placeholder="Your Email"
+                      className="contact-input-minimal"
+                    />
+                  </div>
+
+                  <div>
+                    <input 
+                      type="tel" 
+                      name="phone" 
+                      id="phone"
+                      placeholder="Your Phone Number (Optional)"
                       className="contact-input-minimal"
                     />
                   </div>

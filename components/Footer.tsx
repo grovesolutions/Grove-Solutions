@@ -7,10 +7,9 @@ interface FooterProps {
   onNavMarketing: () => void;
   onNavConsulting: () => void;
   onNavIndustries: () => void;
-  onNavPricing?: () => void;
 }
 
-const Footer: React.FC<FooterProps> = ({ onNavWeb, onNavAi, onNavMarketing, onNavConsulting, onNavIndustries, onNavPricing }) => {
+const Footer: React.FC<FooterProps> = ({ onNavWeb, onNavAi, onNavMarketing, onNavConsulting, onNavIndustries }) => {
   return (
     <footer className="pt-12 pb-8 ">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
@@ -57,11 +56,6 @@ const Footer: React.FC<FooterProps> = ({ onNavWeb, onNavAi, onNavMarketing, onNa
               <li>
                 <button onClick={onNavIndustries} className="hover:text-brand-600 dark:hover:text-brand-400 transition-colors text-left">
                   Industries
-                </button>
-              </li>
-              <li>
-                <button onClick={onNavPricing} className="hover:text-brand-600 dark:hover:text-brand-400 transition-colors text-left">
-                  Pricing
                 </button>
               </li>
             </ul>

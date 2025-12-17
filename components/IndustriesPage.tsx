@@ -8,7 +8,6 @@ interface IndustriesPageProps {
   onWebDev?: () => void;
   onAiAgents?: () => void;
   onMarketing?: () => void;
-  onPricing?: () => void;
 }
 
 interface Feature {
@@ -38,14 +37,13 @@ interface Product {
 }
 
 
-const IndustriesPage: React.FC<IndustriesPageProps> = ({ onBack, onContact, onWebDev, onAiAgents, onMarketing, onPricing }) => {
+const IndustriesPage: React.FC<IndustriesPageProps> = ({ onBack, onContact, onWebDev, onAiAgents, onMarketing }) => {
   const [activeIndustry, setActiveIndustry] = useState<string>('service-providers');
 
   const serviceLinks = [
     { id: 'web-dev', label: 'Web Development', icon: 'code-1', onClick: onWebDev },
     { id: 'ai-agents', label: 'AI Agents', icon: 'comment-1', onClick: onAiAgents },
     { id: 'marketing', label: 'Marketing', icon: 'trend-up-1', onClick: onMarketing },
-    { id: 'pricing', label: 'Pricing', icon: 'label-dollar-2', onClick: onPricing },
   ];
 
   const industries: Industry[] = [

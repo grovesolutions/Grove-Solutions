@@ -44,7 +44,7 @@ const AiAgentPage: React.FC<AiAgentPageProps> = ({ onBack, onContact, onWebDev, 
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showRequestForm, setShowRequestForm] = useState<ActionCard | null>(null);
-  const [requestForm, setRequestForm] = useState({ name: '', email: '', message: '' });
+  const [requestForm, setRequestForm] = useState({ name: '', email: '', phone: '', message: '' });
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [isSubmittingForm, setIsSubmittingForm] = useState(false);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -62,7 +62,7 @@ const AiAgentPage: React.FC<AiAgentPageProps> = ({ onBack, onContact, onWebDev, 
   const handleActionClick = (action: ActionCard) => {
     setShowRequestForm(action);
     setFormSubmitted(false);
-    setRequestForm({ name: '', email: '', message: '' });
+    setRequestForm({ name: '', email: '', phone: '', message: '' });
   };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
@@ -75,6 +75,7 @@ const AiAgentPage: React.FC<AiAgentPageProps> = ({ onBack, onContact, onWebDev, 
       await submitContactRequest({
         name: requestForm.name.trim(),
         email: requestForm.email.trim(),
+        phone: requestForm.phone?.trim(),
         requestType: showRequestForm?.type || 'contact',
         message: `[${showRequestForm?.title || 'Contact'}] ${requestForm.message || 'No additional message provided.'}`.trim(),
       });
@@ -84,10 +85,10 @@ const AiAgentPage: React.FC<AiAgentPageProps> = ({ onBack, onContact, onWebDev, 
     setTimeout(() => {
       setMessages(prev => [...prev, {
         role: 'model',
-          text: `Thanks ${requestForm.name}! 🎉 We've received your ${showRequestForm?.title?.toLowerCase() || 'contact'} request. We'll get back to you at ${requestForm.email} within 24 hours.`
+          text: `Thanks ${requestForm.name}! 🎉 We've received your ${showRequestForm?.title?.toLowerCase() || 'contact'} request. We'll get back to you at ${requestForm.email}${requestForm.phone ? ` or ${requestForm.phone}` : ''} within 24 hours.`
       }]);
       setShowRequestForm(null);
-        setRequestForm({ name: '', email: '', message: '' });
+        setRequestForm({ name: '', email: '', phone: '', message: '' });
     }, 1500);
     } catch (error) {
       console.error("Contact request error:", error);
@@ -115,7 +116,7 @@ const AiAgentPage: React.FC<AiAgentPageProps> = ({ onBack, onContact, onWebDev, 
     try {
       // Pass user info if we have it from a previous form submission
       const userInfo = requestForm.name && requestForm.email 
-        ? { name: requestForm.name, email: requestForm.email }
+        ? { name: requestForm.name, email: requestForm.email, phone: requestForm.phone }
         : undefined;
       
       const response: SaplingResponse = await sendMessageToGemini(userMessage, newHistory, userInfo);
@@ -134,7 +135,7 @@ const AiAgentPage: React.FC<AiAgentPageProps> = ({ onBack, onContact, onWebDev, 
         setMessages(prev => [...prev, { role: 'model', text: response.text }]);
         setShowRequestForm(actionCard);
         setFormSubmitted(false);
-        setRequestForm({ name: '', email: '', message: '' });
+        setRequestForm({ name: '', email: '', phone: '', message: '' });
       } else if (response.action === 'email_sent') {
         // AI successfully sent an email!
         setMessages(prev => [...prev, { 
@@ -353,6 +354,13 @@ const AiAgentPage: React.FC<AiAgentPageProps> = ({ onBack, onContact, onWebDev, 
                                       onChange={(e) => setRequestForm(prev => ({ ...prev, email: e.target.value }))}
                                       className="chat-input-clean w-full px-2.5 py-1.5 rounded-lg bg-neutral-100 dark:bg-neutral-900 text-xs text-neutral-800 dark:text-neutral-200 placeholder:text-neutral-400"
                                       required
+                                    />
+                                    <input
+                                      type="tel"
+                                      placeholder="Your phone (optional)"
+                                      value={requestForm.phone}
+                                      onChange={(e) => setRequestForm(prev => ({ ...prev, phone: e.target.value }))}
+                                      className="chat-input-clean w-full px-2.5 py-1.5 rounded-lg bg-neutral-100 dark:bg-neutral-900 text-xs text-neutral-800 dark:text-neutral-200 placeholder:text-neutral-400"
                                     />
                                     <textarea
                                       placeholder="Tell us about your project (optional)"
