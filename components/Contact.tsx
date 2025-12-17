@@ -19,12 +19,19 @@ const Contact: React.FC = () => {
     const phone = formData.get('phone') as string;
     const message = formData.get('message') as string;
 
+    // Validate that at least one contact method is provided
+    if (!name?.trim() && !email?.trim() && !phone?.trim()) {
+      setSubmitStatus('error');
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       await submitContactRequest({
-        name: name.trim(),
-        email: email.trim(),
+        name: name?.trim(),
+        email: email?.trim(),
         phone: phone?.trim(),
-        message: message.trim(),
+        message: message?.trim(),
         requestType: 'contact',
       });
 
@@ -67,7 +74,6 @@ const Contact: React.FC = () => {
                       type="text" 
                       name="name" 
                       id="name"
-                      required
                       placeholder="Your Name"
                       className="contact-input-minimal"
                     />
@@ -78,7 +84,6 @@ const Contact: React.FC = () => {
                       type="email" 
                       name="email" 
                       id="email"
-                      required
                       placeholder="Your Email"
                       className="contact-input-minimal"
                     />
@@ -89,7 +94,7 @@ const Contact: React.FC = () => {
                       type="tel" 
                       name="phone" 
                       id="phone"
-                      placeholder="Your Phone Number (Optional)"
+                      placeholder="Your Phone Number"
                       className="contact-input-minimal"
                     />
                   </div>
@@ -99,8 +104,7 @@ const Contact: React.FC = () => {
                       name="message" 
                       id="message"
                       rows={3}
-                      required
-                      placeholder="Share your thoughts"
+                      placeholder="Share your thoughts (optional)"
                       className="contact-input-minimal resize-none"
                     ></textarea>
                   </div>

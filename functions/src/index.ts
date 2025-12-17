@@ -32,21 +32,21 @@ const COMPANY_EMAIL = "grovesolutions.contact@gmail.com";
 const functionDeclarations: FunctionDeclaration[] = [
   {
     name: "send_contact_request",
-    description: "Send an email to Grove Solutions when a user wants to get in touch, request a quote, book a demo, or contact the team. Use this when the user provides their name and email and wants to reach out.",
+    description: "Send an email to Grove Solutions when a user wants to get in touch, request a quote, book a demo, or contact the team. Use this when the user provides at least ONE contact method (name, email, OR phone) and wants to reach out.",
     parameters: {
       type: SchemaType.OBJECT,
       properties: {
         user_name: {
           type: SchemaType.STRING,
-          description: "The user's full name",
+          description: "The user's full name (optional if email or phone provided)",
         },
         user_email: {
           type: SchemaType.STRING,
-          description: "The user's email address",
+          description: "The user's email address (optional if name or phone provided)",
         },
         user_phone: {
           type: SchemaType.STRING,
-          description: "The user's phone number (optional)",
+          description: "The user's phone number (optional if name or email provided)",
         },
         request_type: {
           type: SchemaType.STRING,
@@ -57,7 +57,7 @@ const functionDeclarations: FunctionDeclaration[] = [
           description: "The user's message or project details",
         },
       },
-      required: ["user_name", "user_email", "request_type"],
+      required: ["request_type"],
     },
   },
   {
@@ -138,12 +138,13 @@ export const submitContactRequest = onCall(
   async (request) => {
     const { name, email, phone, message, requestType } = request.data as ContactRequestPayload;
 
-    if (!name || !email) {
-      throw new HttpsError("invalid-argument", "Name and email are required");
+    // Validate that at least one contact method is provided
+    if (!name?.trim() && !email?.trim() && !phone?.trim()) {
+      throw new HttpsError("invalid-argument", "At least one contact method (name, email, or phone) is required");
     }
 
-    const sanitizedName = name.trim().slice(0, 120);
-    const sanitizedEmail = email.trim().slice(0, 200);
+    const sanitizedName = name ? name.trim().slice(0, 120) : "Anonymous";
+    const sanitizedEmail = email ? email.trim().slice(0, 200) : "No email provided";
     const sanitizedPhone = phone ? phone.trim().slice(0, 50) : undefined;
     const sanitizedMessage = (message || "").trim().slice(0, 2000);
     const safeRequestType = (requestType || "contact").toLowerCase();
@@ -303,24 +304,25 @@ You have access to tools that let you take real actions:
 
 1. collect_contact_info - Use this when:
    - User wants a quote, demo, or to contact the team
-   - You need their name and email to proceed
+   - You need at least ONE contact method (name, email, OR phone) to proceed
    - Example: User says "I want a quote" → call collect_contact_info with request_type="quote"
 
 2. send_contact_request - Use this when:
-   - You already have the user's name AND email from the conversation
+   - You have at least ONE contact method from the user (name, email, OR phone)
    - User confirms they want to send a request
-   - Parameters needed: user_name, user_email, request_type, message
-   - Optional: user_phone (if the user provided their phone number)
+   - Parameters: request_type (required), plus any of: user_name, user_email, user_phone, message
+   - You don't need all three - just one or more contact methods!
 
 TOOL USAGE FLOW:
 1. User expresses interest in quote/demo/contact
-2. If you don't have their info → call collect_contact_info (UI will show a form)
-3. If you have their info → call send_contact_request to actually send the email
+2. If you don't have ANY contact info → call collect_contact_info (UI will show a form)
+3. If you have at least ONE contact method → call send_contact_request to send the email
 4. Confirm the action was taken and thank them
 
 IMPORTANT:
-- Only call send_contact_request if you have BOTH name and email
-- Phone numbers are optional but helpful - include them if provided
+- You only need ONE contact method minimum (name, email, or phone)
+- More contact info is better, but don't require all three - that creates friction!
+- Be flexible - if someone gives just their phone, that's enough!
 - Be proactive about offering to send requests when users show interest
 - After sending, confirm with an enthusiastic response
 
@@ -422,16 +424,17 @@ export const chatWithSapling = onCall(
         const args = functionCall.args as Record<string, string>;
 
         if (functionCall.name === "send_contact_request") {
-          // Check if we have user info
+          // Check if we have user info - at least one contact method required
           const userName = args.user_name || userInfo?.name;
           const userEmail = args.user_email || userInfo?.email;
           const userPhone = args.user_phone || userInfo?.phone;
 
-          if (userName && userEmail) {
+          // Validate that at least one contact method is provided
+          if (userName || userEmail || userPhone) {
             // Actually send the email!
             const emailResult = await sendEmailViaEmailJS(
-              userName,
-              userEmail,
+              userName || "Anonymous",
+              userEmail || "No email provided",
               args.request_type || "contact",
               args.message || "",
               emailjsPublicKey.value(),
@@ -460,7 +463,7 @@ export const chatWithSapling = onCall(
             // Need to collect info first
             return {
               success: true,
-              response: `I'd love to help you with that! To send your ${args.request_type || "contact"} request to our team, I just need a couple of details.`,
+              response: `I'd love to help you with that! To send your ${args.request_type || "contact"} request to our team, I just need at least one way to reach you (name, email, or phone).`,
               action: "collect_info",
               requestType: args.request_type || "contact",
             };
@@ -470,7 +473,7 @@ export const chatWithSapling = onCall(
         if (functionCall.name === "collect_contact_info") {
           return {
             success: true,
-            response: `Great! To ${args.reason || "connect you with our team"}, I'll need your name and email. You can use the form that just appeared!`,
+            response: `Great! To ${args.reason || "connect you with our team"}, I'll need at least one way to reach you - your name, email, or phone number. You can use the form that just appeared!`,
             action: "collect_info",
             requestType: args.request_type || "contact",
           };

@@ -67,14 +67,20 @@ const AiAgentPage: React.FC<AiAgentPageProps> = ({ onBack, onContact, onWebDev, 
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!requestForm.name || !requestForm.email || isSubmittingForm) return;
+    
+    // Validate that at least one contact method is provided
+    if (!requestForm.name?.trim() && !requestForm.email?.trim() && !requestForm.phone?.trim()) {
+      return;
+    }
+    
+    if (isSubmittingForm) return;
     
     setIsSubmittingForm(true);
     
     try {
       await submitContactRequest({
-        name: requestForm.name.trim(),
-        email: requestForm.email.trim(),
+        name: requestForm.name?.trim(),
+        email: requestForm.email?.trim(),
         phone: requestForm.phone?.trim(),
         requestType: showRequestForm?.type || 'contact',
         message: `[${showRequestForm?.title || 'Contact'}] ${requestForm.message || 'No additional message provided.'}`.trim(),
@@ -83,9 +89,14 @@ const AiAgentPage: React.FC<AiAgentPageProps> = ({ onBack, onContact, onWebDev, 
     setFormSubmitted(true);
     
     setTimeout(() => {
+      const contactMethods = [];
+      if (requestForm.email) contactMethods.push(requestForm.email);
+      if (requestForm.phone) contactMethods.push(requestForm.phone);
+      const contactInfo = contactMethods.length > 0 ? ` We'll reach out to you at ${contactMethods.join(' or ')} within 24 hours.` : ' We\'ll be in touch soon!';
+      
       setMessages(prev => [...prev, {
         role: 'model',
-          text: `Thanks ${requestForm.name}! 🎉 We've received your ${showRequestForm?.title?.toLowerCase() || 'contact'} request. We'll get back to you at ${requestForm.email}${requestForm.phone ? ` or ${requestForm.phone}` : ''} within 24 hours.`
+          text: `Thanks${requestForm.name ? ` ${requestForm.name}` : ''}! 🎉 We've received your ${showRequestForm?.title?.toLowerCase() || 'contact'} request.${contactInfo}`
       }]);
       setShowRequestForm(null);
         setRequestForm({ name: '', email: '', phone: '', message: '' });
@@ -345,7 +356,6 @@ const AiAgentPage: React.FC<AiAgentPageProps> = ({ onBack, onContact, onWebDev, 
                                       value={requestForm.name}
                                       onChange={(e) => setRequestForm(prev => ({ ...prev, name: e.target.value }))}
                                       className="chat-input-clean w-full px-2.5 py-1.5 rounded-lg bg-neutral-100 dark:bg-neutral-900 text-xs text-neutral-800 dark:text-neutral-200 placeholder:text-neutral-400"
-                                      required
                                     />
                                     <input
                                       type="email"
@@ -353,11 +363,10 @@ const AiAgentPage: React.FC<AiAgentPageProps> = ({ onBack, onContact, onWebDev, 
                                       value={requestForm.email}
                                       onChange={(e) => setRequestForm(prev => ({ ...prev, email: e.target.value }))}
                                       className="chat-input-clean w-full px-2.5 py-1.5 rounded-lg bg-neutral-100 dark:bg-neutral-900 text-xs text-neutral-800 dark:text-neutral-200 placeholder:text-neutral-400"
-                                      required
                                     />
                                     <input
                                       type="tel"
-                                      placeholder="Your phone (optional)"
+                                      placeholder="Your phone"
                                       value={requestForm.phone}
                                       onChange={(e) => setRequestForm(prev => ({ ...prev, phone: e.target.value }))}
                                       className="chat-input-clean w-full px-2.5 py-1.5 rounded-lg bg-neutral-100 dark:bg-neutral-900 text-xs text-neutral-800 dark:text-neutral-200 placeholder:text-neutral-400"
