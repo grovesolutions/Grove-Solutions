@@ -166,22 +166,6 @@ const Contact: React.FC = () => {
               <p className="mt-6 text-neutral-500 dark:text-neutral-400 text-sm md:text-base leading-relaxed max-w-xs mx-auto lg:mx-0">
                 Ready to never miss another customer? Get a free consultation and see how our AI can transform your business in 30 minutes.
               </p>
-              
-              {/* Trust Indicators */}
-              <div className="mt-6 space-y-2">
-                <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400 justify-center lg:justify-start">
-                  <LineIcon name="check-circle-1" className="text-brand-500 text-sm" />
-                  <span>Free 30-minute consultation</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400 justify-center lg:justify-start">
-                  <LineIcon name="check-circle-1" className="text-brand-500 text-sm" />
-                  <span>No credit card required</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400 justify-center lg:justify-start">
-                  <LineIcon name="check-circle-1" className="text-brand-500 text-sm" />
-                  <span>Setup in under 30 minutes</span>
-                </div>
-              </div>
 
               {/* Contact Info */}
               <div className="mt-6 space-y-3">
