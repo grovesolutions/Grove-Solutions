@@ -120,17 +120,23 @@ const Contact: React.FC = () => {
                     <button 
                       type="submit" 
                       disabled={isSubmitting}
-                      className="btn-gradient-border rounded-lg text-sm disabled:opacity-70 disabled:cursor-not-allowed"
+                      className="w-full btn-leaf rounded-lg text-sm md:text-base font-semibold py-3 disabled:opacity-70 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transition-all"
                     >
                       {isSubmitting ? (
-                        <span className="flex items-center gap-2">
+                        <span className="flex items-center justify-center gap-2">
                           <LineIcon name="spinner-3" className="text-sm lni-is-spinning" />
                           Sending...
                         </span>
                       ) : (
-                        'Share Your Feedback'
+                        <span className="flex items-center justify-center gap-2">
+                          Get Free Consultation
+                          <LineIcon name="arrow-right" className="text-base" />
+                        </span>
                       )}
                     </button>
+                    <p className="text-[10px] text-neutral-400 dark:text-neutral-500 text-center mt-3">
+                      We'll respond within 24 hours
+                    </p>
                   </div>
                 </form>
               )}
@@ -158,8 +164,24 @@ const Contact: React.FC = () => {
               </div>
               
               <p className="mt-6 text-neutral-500 dark:text-neutral-400 text-sm md:text-base leading-relaxed max-w-xs mx-auto lg:mx-0">
-                It is very important for us to keep in touch with you, so we are always ready to answer any question that interests you. Shoot!
+                Ready to never miss another customer? Get a free consultation and see how our AI can transform your business in 30 minutes.
               </p>
+              
+              {/* Trust Indicators */}
+              <div className="mt-6 space-y-2">
+                <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400 justify-center lg:justify-start">
+                  <LineIcon name="check-circle-1" className="text-brand-500 text-sm" />
+                  <span>Free 30-minute consultation</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400 justify-center lg:justify-start">
+                  <LineIcon name="check-circle-1" className="text-brand-500 text-sm" />
+                  <span>No credit card required</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400 justify-center lg:justify-start">
+                  <LineIcon name="check-circle-1" className="text-brand-500 text-sm" />
+                  <span>Setup in under 30 minutes</span>
+                </div>
+              </div>
 
               {/* Contact Info */}
               <div className="mt-6 space-y-3">

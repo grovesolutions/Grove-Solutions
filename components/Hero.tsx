@@ -33,31 +33,58 @@ const Hero: React.FC<HeroProps> = ({ onContact }) => {
         <div className="max-w-3xl mx-auto text-center">
           
           <FadeIn>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-100 dark:bg-brand-500/15 mb-4 text-brand-600 dark:text-brand-400">
+              <LineIcon name="star-fat" className="text-sm" />
+              <span className="text-[10px] font-medium uppercase tracking-wider">Never Miss a Customer</span>
+            </div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-display font-semibold text-neutral-800 dark:text-neutral-100 tracking-tight leading-[1.15] mb-5 md:mb-6">
-              We Build The{' '}
-              <span className="text-leaf-shiny">Digital Engine</span>
+              AI That Books Appointments{' '}
+              <span className="text-leaf-shiny">24/7</span>
               <br className="hidden sm:block" />
-              <span className="block sm:inline mt-1 sm:mt-0"> Your Business Needs.</span>
+              <span className="block sm:inline mt-1 sm:mt-0">While You Sleep</span>
             </h1>
           </FadeIn>
           
           <FadeIn delay={150}>
-            <p className="text-sm md:text-base lg:text-lg text-neutral-500 dark:text-neutral-400 mb-8 md:mb-10 max-w-xl mx-auto leading-relaxed">
-              Stop losing leads to outdated tech. We provide <span className="text-neutral-700 dark:text-neutral-300">Custom Websites</span>, intelligent <span className="text-neutral-700 dark:text-neutral-300">AI Agents</span>, and strategic <span className="text-neutral-700 dark:text-neutral-300">Marketing</span> in one seamless ecosystem.
+            <p className="text-sm md:text-base lg:text-lg text-neutral-500 dark:text-neutral-400 mb-6 md:mb-8 max-w-xl mx-auto leading-relaxed">
+              Stop losing customers to missed calls and slow websites. Our AI answers every call, books appointments, and converts web traffic—<span className="text-neutral-700 dark:text-neutral-300 font-medium">all while you focus on running your business.</span>
             </p>
+            <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-neutral-500 dark:text-neutral-400 mb-8 md:mb-10">
+              <div className="flex items-center gap-1.5">
+                <LineIcon name="check-circle-1" className="text-brand-500 text-sm" />
+                <span>No missed calls</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <LineIcon name="check-circle-1" className="text-brand-500 text-sm" />
+                <span>Proven ROI</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <LineIcon name="check-circle-1" className="text-brand-500 text-sm" />
+                <span>Setup in 30 minutes</span>
+              </div>
+            </div>
           </FadeIn>
           
           <FadeIn delay={300}>
-            <div className="flex items-center justify-center">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <a 
                 href="#contact" 
                 onClick={(e) => { e.preventDefault(); onContact(); }}
-                className="px-6 md:px-7 py-2.5 md:py-3 btn-leaf rounded-lg font-medium text-sm md:text-base flex items-center gap-2 group"
+                className="px-6 md:px-8 py-3 md:py-3.5 btn-leaf rounded-lg font-semibold text-sm md:text-base flex items-center gap-2 group shadow-lg hover:shadow-xl transition-all"
               >
-                Start Your Transformation
+                Get Started Free
                 <LineIcon name="arrow-right" className="text-base md:text-lg group-hover:translate-x-1 transition-transform" />
               </a>
+              <a 
+                href="#services" 
+                className="px-6 md:px-8 py-3 md:py-3.5 border border-neutral-300 dark:border-neutral-600 rounded-lg font-medium text-sm md:text-base text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-all"
+              >
+                See How It Works
+              </a>
             </div>
+            <p className="text-[10px] text-neutral-400 dark:text-neutral-500 mt-3 text-center">
+              No credit card required • 30-day money-back guarantee
+            </p>
           </FadeIn>
         </div>
 

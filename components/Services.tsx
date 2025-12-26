@@ -19,25 +19,25 @@ interface ServiceItemWithCode {
 const Services: React.FC<ServicesProps> = ({ onLearnMoreWeb, onLearnMoreAi, onLearnMoreMarketing }) => {
   const services: ServiceItemWithCode[] = [
     {
-      title: "Tailored Web Experiences",
-      productCode: "GES-SITE",
-      description: "Your 24/7 salesperson. Custom, lightning-fast React applications designed for your industry.",
-      icon: "globe-1",
-      features: ["Custom UI/UX Design", "SEO Optimization", "Mobile-First", "High-Conversion Pages"]
-    },
-    {
-      title: "Proprietary AI Agents",
+      title: "AI Receptionist",
       productCode: "GES-VOICE",
-      description: "Never miss a lead. Our agents handle inquiries, book appointments, and qualify leads instantly.",
-      icon: "comment-1",
-      features: ["Natural Language AI", "Lead Qualification", "CRM Integration", "24/7 Availability"]
+      description: "Never miss a call. Our AI answers every call, books appointments into your calendar, and qualifies leads 24/7.",
+      icon: "phone",
+      features: ["Answers calls 24/7", "Books appointments automatically", "Qualifies leads with 5 questions", "Escalates complex calls to you"]
     },
     {
-      title: "Strategic Marketing",
-      productCode: "GES-SEO",
-      description: "We don't just build—we fuel. Targeted campaigns ensure the right eyes see your infrastructure.",
-      icon: "bar-chart-4",
-      features: ["PPC Management", "Social Growth", "Email Automation", "Analytics"]
+      title: "Conversion Websites",
+      productCode: "GES-SITE",
+      description: "High-converting sites that turn visitors into booked appointments. Mobile-optimized, fast-loading, built for your industry.",
+      icon: "globe-1",
+      features: ["10 conversion-optimized templates", "Drag-and-drop builder", "Booking widget embedded", "Loads in under 2 seconds"]
+    },
+    {
+      title: "Lead Management",
+      productCode: "GES-LEAD",
+      description: "Smart lead scoring so you focus on closeable prospects. Tracks every lead from call, form, or chat.",
+      icon: "target-user",
+      features: ["RICE lead scoring (0-100)", "Source attribution", "Automated follow-ups", "CRM integrations"]
     }
   ];
 
@@ -56,13 +56,17 @@ const Services: React.FC<ServicesProps> = ({ onLearnMoreWeb, onLearnMoreAi, onLe
       <div className="container mx-auto px-4 sm:px-6">
         <div className="mb-10 md:mb-12 text-center max-w-2xl mx-auto">
           <FadeIn>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-brand-100 dark:bg-brand-500/15 mb-4 text-brand-600 dark:text-brand-400">
+              <LineIcon name="layers-1" className="text-sm" />
+              <span className="text-[10px] font-medium uppercase tracking-wider">Complete Platform</span>
+            </div>
             <h2 className="text-xl sm:text-2xl md:text-3xl font-display font-semibold text-neutral-800 dark:text-neutral-100 mb-3">
-              The <span className="text-leaf-shiny">Grove Ecosystem</span>
+              Everything You Need to <span className="text-leaf-shiny">Capture More Customers</span>
             </h2>
           </FadeIn>
           <FadeIn delay={150}>
             <p className="text-neutral-500 dark:text-neutral-400 text-sm md:text-base">
-              Three pillars of modern business, unified. Stop juggling freelancers—we handle it all.
+              AI voice, conversion websites, and lead management—all in one platform. No more missed opportunities.
             </p>
           </FadeIn>
         </div>
@@ -110,12 +114,14 @@ const Services: React.FC<ServicesProps> = ({ onLearnMoreWeb, onLearnMoreAi, onLe
                   ))}
                 </ul>
 
-                <button 
-                  onClick={() => handleLearnMore(idx)}
-                  className="inline-flex items-center text-brand-600 dark:text-brand-500 font-medium text-xs hover:text-brand-700 dark:hover:text-brand-400 transition-colors mt-auto"
-                >
-                  Learn more <LineIcon name="arrow-angular-top-right" className="text-sm ml-1" />
-                </button>
+                <div className="mt-auto pt-4 border-t border-neutral-200 dark:border-neutral-700">
+                  <button 
+                    onClick={() => handleLearnMore(idx)}
+                    className="inline-flex items-center text-brand-600 dark:text-brand-500 font-medium text-xs hover:text-brand-700 dark:hover:text-brand-400 transition-colors"
+                  >
+                    Learn more <LineIcon name="arrow-angular-top-right" className="text-sm ml-1" />
+                  </button>
+                </div>
               </div>
             </FadeIn>
           ))}
